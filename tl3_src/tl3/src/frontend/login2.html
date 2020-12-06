@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/js-cookie@beta/dist/js.cookie.min.js"></script>
+        <title>Login</title>
+        <script>
+            $(document).ready(function(){
+                $('#login_form').submit(function(event) {
+                    var formData = {
+                        'user' : $('#user').val(),
+                        'pass' : $('#pass').val()
+                    };
+                    Cookies.set('session_key', $('#username').val());
+                    Cookies.set('session_value', $('#password').val());
+                    $.ajax({
+                        type        : 'POST',
+                        url         : '/cgi-bin/login.py',
+                        data        : formData, 
+                        dataType    : 'json',
+                        encode      : true,
+                        xhrFields: {
+                            withCredentials: true
+                        }
+                    })
+                    .done(function(data) {
+                        alert('LOGIN OK');
+                    })
+                    .fail(function(data){
+                        alert('LOGIN ERROR');
+                    });
+                    event.preventDefault();
+                });            
+            });
+        </script>
+    </head>
+    <body>
+        <div>                        
+            <form id="login_form" action="/cgi-bin/login.py" method="post">
+                <div>
+                    <label for="num">Username::</label>
+                    <input type="text" id="user" name="user"><br><br>
+                </div>
+                <div>
+                    <label for="pass">Password:</label>
+                    <input type="pass" id="pass" name="password"><br><br>
+                </div>
+                <div>
+                    <label for=""></label>
+                    <input type="submit" value="login">
+                </div>
+            </form>
+        </div>
+    </body>
+</html>

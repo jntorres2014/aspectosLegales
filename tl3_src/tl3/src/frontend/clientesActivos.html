@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>TL3</title>
+    <script type="text/javascript" src="statics/jquery-3.5.1.js"></script>
+    <script type="text/javascript" src="statics/bootstrap/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="statics/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="statics/estilos.css">
+    <script>
+        var modificar = false;
+        function save_user(){
+            $()
+        }
+        
+        function get_users(){
+            $("#users_tbody").empty();
+            var jqxhr = $.get("/cgi-bin/users.py", function( users ) {
+                console.log('load_users || ');
+                //console.log(users);
+                for (row in users){
+                    let user = users[row];
+                    new_tr = '<tr ><td id="lsid" name="id" ">'+user.id+'</td>';
+                    new_tr += '<td id="lsname" name="name">'+user.name+'</td>';
+                    new_tr += '<td id="lsage" name="age">'+user.age+'</td>';
+                    new_tr += '<td id="lsusername" name="username" >'+user.username+'</td>';
+                    new_tr += '<td id="lspassword" name="password">'+user.password+'</td>';
+                    new_tr += '<td> <button data-toggle="modal"  data-target="#exampleModal" class ="editar"> Modificar </button> <button class ="borrar" "btn btn-danger">Eliminar </button></td></tr>';
+                    console.log(new_tr);
+
+                    $('#users_tbody').append(new_tr);
+                }
+            })
+            .fail(function() {
+                new_tr = '<tr><th scope="row" colspan="7"> No se pudieron consultar los usuarios</th>';
+                $('#users_tbody').append(new_tr);
+            })
+        }
+        $(document).ready(function(){            
+            get_users();
+            $(document).on('click', '.editar', function (event) {
+            console.log('Entre a editar');
+
+             // $('#name').attr('value', $(this).closest('tr').name);
+            console.log($('#id_user').attr('value', $(this).closest('tr').children('#lsid').text()));
+            $('#id_user').attr('value', $(this).closest('tr').children('#lsid').text());
+            //$('#id_user').attr('value','#')
+            $('#name').attr('value', $(this).closest('tr').children('#lsname').text());
+            $('#age').attr('value', $(this).closest('tr').children('#lsage').text());
+            $('#username').attr('value', $(this).closest('tr').children('#lsusername').text());
+            $('#password').attr('value', $(this).closest('tr').children('#lspassword').text() );
+                
+            event.preventDefault();
+                        
+            });    
+            $(document).on('click', '.borrar', function (event) {
+            $(this).closest('tr').remove();
+            var formData = {
+                    'id': $('#id').val(),
+                    'name'     : $('#name').val(),
+                    'age'      : $('#age').val(),
+                    'username' : $('#username').val(),
+                    'password' : $('#password').val()
+                };
+                $.ajax({
+                    type        : 'DELETE',
+                    url         : '/cgi-bin/users.py',
+                    data        : formData, 
+                    dataType    : 'json',
+                    encode      : true
+                })
+                .done(function(data) {
+                    alert('Usuario eliminado correctamente');
+                    $('#toggle_modal').click()
+
+                    get_users();
+                })
+                .fail(function(data){
+                    alert('No se pudo eliminar el usuario');
+                });
+                event.preventDefault();
+            
+            });
+
+            $('#new_user').submit(function(event) {
+                    var algo = $('#id_user').val();
+                    console.log(algo);
+                    var formData = {
+                        'id_user' : $('#id_user').val(),
+                        'name'     : $('#name').val(),
+                        'age'      : $('#age').val(),
+                        'username' : $('#username').val(),
+                        'password' : $('#password').val()
+                    };
+
+
+                    $.ajax({
+                        type        : 'POST',
+                        url         : '/cgi-bin/users.py',
+                        data        : formData, 
+                        dataType    : 'json',
+                        encode      : true
+                    
+                    })
+                
+                .done(function(data) {
+                    alert('Usuario guardado correctamente');
+                    $('#toggle_modal').click()
+                    get_users();
+                })
+                .fail(function(data){
+                    alert('No se pudo guardar el usuario');
+                });
+
+                event.preventDefault();
+            });            
+        });
+    </script>
+</head>
+<body>    
+    <nav class="navbar navbar-dark bd-navbar bg-dark">
+        <a class="navbar-brand" href="index.html">
+            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-globe2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm7.5-6.923c-.67.204-1.335.82-1.887 1.855-.143.268-.276.56-.395.872.705.157 1.472.257 2.282.287V1.077zM4.249 3.539a8.372 8.372 0 0 1-1.198-.49 7.01 7.01 0 0 1 2.276-1.52 6.7 6.7 0 0 0-.597.932 8.854 8.854 0 0 0-.48 1.079zM3.509 7.5H1.017A6.964 6.964 0 0 1 2.38 3.825c.47.258.995.482 1.565.667A13.4 13.4 0 0 0 3.508 7.5zm1.4-2.741c.808.187 1.681.301 2.591.332V7.5H4.51c.035-.987.176-1.914.399-2.741zM8.5 5.09V7.5h2.99a12.342 12.342 0 0 0-.399-2.741c-.808.187-1.681.301-2.591.332zM4.51 8.5H7.5v2.409c-.91.03-1.783.145-2.591.332a12.343 12.343 0 0 1-.4-2.741zm3.99 0v2.409c.91.03 1.783.145 2.591.332.223-.827.364-1.754.4-2.741H8.5zm-3.282 3.696A12.63 12.63 0 0 1 7.5 11.91v3.014c-.67-.204-1.335-.82-1.887-1.855a7.776 7.776 0 0 1-.395-.872zm.11 2.276a6.696 6.696 0 0 1-.598-.933 8.853 8.853 0 0 1-.481-1.079 8.38 8.38 0 0 0-1.198.49 7.01 7.01 0 0 0 2.276 1.522zm-1.383-2.964a9.083 9.083 0 0 0-1.565.667A6.963 6.963 0 0 1 1.018 8.5h2.49a13.36 13.36 0 0 0 .437 3.008zm6.728 2.964a7.009 7.009 0 0 0 2.275-1.521 8.376 8.376 0 0 0-1.197-.49 8.853 8.853 0 0 1-.481 1.078 6.688 6.688 0 0 1-.597.933zM8.5 11.909c.81.03 1.577.13 2.282.287-.12.312-.252.604-.395.872-.552 1.035-1.218 1.65-1.887 1.855V11.91zm3.555-.401c.57.185 1.095.409 1.565.667A6.963 6.963 0 0 0 14.982 8.5h-2.49a13.36 13.36 0 0 1-.437 3.008zM14.982 7.5h-2.49a13.361 13.361 0 0 0-.437-3.008 9.123 9.123 0 0 0 1.565-.667A6.963 6.963 0 0 1 14.982 7.5zM11.27 2.461c.177.334.339.694.482 1.078a8.368 8.368 0 0 0 1.196-.49 7.01 7.01 0 0 0-2.275-1.52c.218.283.418.597.597.932zm-.488 1.343c-.705.157-1.473.257-2.282.287V1.077c.67.204 1.335.82 1.887 1.855.143.268.276.56.395.872z"/>
+            </svg>  
+            Sistemas Distribuidos
+        </a>
+    </nav>
+
+    <br><br>
+    <div class="content">
+        <table class="table">
+            <thead class="egt">
+                <tr>
+                    <th scope="col" colspan="6">Usuarios</th>
+                </tr>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Edad</th>
+                    <th scope="col">Usuario</th>
+                    <th scope="col">Password</th>
+                    <th scope="col">Acciones</th>
+                    
+                </tr>
+            </thead>
+            <tbody id="users_tbody">
+                
+            </tbody>
+            <tfoot>
+                <tr class="">                    
+                    <td colspan="6" class="align-a-derecha">
+            
+                        <button id="toggle_modal" type="button" class="btn btn-dark" data-toggle="modal" data-target="#exampleModal">
+                            Agregar
+                        </button>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+
+          <div class="modal-body"> 
+            <form id="new_user" action="/cgi-bin/users.py" method="post">
+                <div class="form-group">
+                    <input type="hidden" id="id_user" name="id_user" value="#" >
+                
+                    <!-- <input type="hidden" id="id_user" name="id_user"> -->
+                </div>
+
+
+                <div class="form-group">
+                    <label for="name">Nombre</label>
+                    <input type="text" class="form-control" id="name" name="name" aria-describedby="emailHelp" placeholder="Nombre">
+                </div>
+                <div class="form-group">
+                    <label for="age">Edad</label>
+                    <input type="text" class="form-control" id="age" name="age" placeholder="Edad">
+                </div>
+                <div class="form-group">
+                    <label for="username">Usuario</label>
+                    <input type="text" class="form-control" id="username" name="username" aria-describedby="Usuario" placeholder="Usuario">
+                </div>
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña">
+                </div>
+                
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-success" onclick="$('#new_user').submit();">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+</body>
+
+</html>

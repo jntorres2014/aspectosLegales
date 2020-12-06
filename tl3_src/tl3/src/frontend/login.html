@@ -1,0 +1,143 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/js-cookie@beta/dist/js.cookie.min.js"></script>
+<title>TL3</title>
+<script type="text/javascript" src="statics/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="statics/bootstrap/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="statics/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="statics/estilos.css">
+<script>
+            function save_user(){
+            $()
+        };
+            $(document).ready(function(){
+                console.log('Documento listo!!!!');
+                $('#log_user').submit(function(event) {  
+                var loginData = {
+                    'user' : $('#user').val(),
+                    'pass' : $('#pass').val()
+                };
+                Cookies.set('session_key', $('#user').val());
+                Cookies.set('session_value', $('#pass').val());
+                $.ajax({
+                    type        : 'POST',
+                    url         : '/cgi-bin/login.py',
+                    data        : loginData, 
+                    dataType    : 'json',
+                    encode      : true,
+                    xhrFields: {
+                            withCredentials: true
+                    }
+                })
+                .done(function(data){
+                    console.log('volviiiiiii');
+                    console.log(data);
+                     if (data.error== false){
+                         console.log('Llego hasta done');
+                         alert('usuario correcto');
+                         location.href= "http://localhost:8080/trabajos.html";
+                     }
+                     else {console.log('Llego hasta fail');
+                         alert('usuario o contraseña incorrectos');}
+                })
+                .fail(function(data){
+                    console.log('Llego hasta fail');
+                    alert('usuario o contraseña incorrectos');
+                })      
+                event.preventDefault();
+            });  
+            
+                $('#new_user').submit(function(event) {
+                console.log('Entre al new user')
+                var formData = {
+                    'name'     : $('#name').val(),
+                    'age'      : $('#age').val(),
+                    'username' : $('#username').val(),
+                    'password' : $('#password').val()
+                };
+
+                $.ajax({
+                    type        : 'POST',
+                    url         : '/cgi-bin/users.py',
+                    data        : formData, 
+                    dataType    : 'json',
+                    encode      : true
+                })
+                .done(function(data) {
+                    console.log('Llego hasta done user');
+                    alert('Usuario guardado correctamente');
+                    
+                })
+                .fail(function(data){
+                    console.log('Llego hasta fail user')
+                    console.log(data)
+                    alert('No se pudo guardar el usuario');
+                });
+            
+                event.preventDefault();
+            });
+            
+        });
+
+</script>
+<meta charset="utf-8">
+<body>
+    <div id="Login">
+        <form method="POST" action="/cgi-bin/login.py" id="log_user" >
+            <!-- Usuario -->
+            <label for="form" >Usuario:</label>
+            <input id="user" name="user" type="user">
+            <!-- Contraseña -->
+            <label for="pass">Contraseña:</label>   
+            <input id="pass" name="pass" type="password">    
+            <button type="submit" class="btn btn-success">Login Prueba</button>
+            
+        </form> 
+    </div>
+        <button id="toggle_modal" type="button" class="btn btn-dark" data-toggle="modal" data-target="#exampleModal">
+            Agregar un usuario nuevo
+        </button>      
+            <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Crear usuario nuevo</h5>
+              
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body"> 
+              <form id="new_user" action="/cgi-bin/users.py" method="post">
+                  <div class="form-group">
+                      <label for="name">Nombre</label>
+                      <input type="text" class="form-control" id="name" name="name" aria-describedby="emailHelp" placeholder="Nombre">
+                  </div>
+                  <div class="form-group">
+                      <label for="age">Edad</label>
+                      <input type="text" class="form-control" id="age" name="age" placeholder="Edad">
+                  </div>
+                  <div class="form-group">
+                      <label for="username">Usuario</label>
+                      <input type="text" class="form-control" id="username" name="username" aria-describedby="Usuario" placeholder="Usuario">
+                  </div>
+                  <div class="form-group">
+                      <label for="password">Contraseña</label>
+                      <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña">
+                  </div>
+                  
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+              <button type="button" class="btn btn-success" onclick="$('#new_user').submit();">Guardar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+    </div>
+</body>

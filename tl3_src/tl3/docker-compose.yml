@@ -1,0 +1,69 @@
+version: '3'
+services:
+  apache:
+    build: ./websrv
+    container_name: "tl3_websrv"
+    volumes:
+      - ./src/frontend/:/usr/local/apache2/htdocs/
+      - ./src/backend/:/usr/local/apache2/cgi-bin/
+    ports:
+      - "8080:80"
+    links:
+      - postgres
+
+  postgres:
+    build: ./db
+    container_name: "tl3_db"
+    volumes:
+     - /db/data:/volume
+    ports:
+      - "5555:5432"
+    environment:
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_USER=admin
+      - POSTGRES_DB=tl3
+      - PGDATA=/volume/data
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - certs:/etc/nginx/certs:ro
+      - vhostd:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+    labels:
+      - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
+
+  letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    restart: always
+    environment:
+      - NGINX_PROXY_CONTAINER=nginx-proxy
+    volumes:
+      - certs:/etc/nginx/certs:rw
+      - vhostd:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  www:
+    image: nginx
+    restart: always
+    expose:
+      - "80"
+    volumes:
+      - /Users/kbs/git/peladonerd/varios/1/www:/usr/share/nginx/html:ro
+    environment:
+      - VIRTUAL_HOST=lobewol983.wixsite.com/pruebauni
+      - LETSENCRYPT_HOST=lobewol983.wixsite.com/pruebauni
+      - LETSENCRYPT_EMAIL=jntorres2014@gmail.com
+    depends_on:
+      - nginx-proxy
+      - letsencrypt
+volumes: 
+  certs:
+  html:
+  vhostd:
+

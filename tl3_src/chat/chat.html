@@ -1,0 +1,45 @@
+  <html>
+      <head>
+        <title>My chat</title>
+        <script type = "text/javascript"> 
+              //---------------------------------------------------------------              
+			  function getReqObj() {
+                  var XMLHttpRequestObject; 
+                  if (window.XMLHttpRequest) { 
+                       XMLHttpRequestObject = new XMLHttpRequest(); 
+                  } else if (window.ActiveXObject) { 
+                      XMLHttpRequestObject = new ActiveXObject("Microsoft.XMLHTTP"); 
+                  }
+                 return XMLHttpRequestObject; 
+              }
+              //---------------------------------------------------------------              
+			  function submitHandler(txtID, divID) 
+              {
+				  var theText = document.getElementById(txtID);
+				  var theArea = document.getElementById(divID);
+				  var reqObj = getReqObj();
+				  var url="cgi-bin/textchat?newtxt=" + escape("<p>" + theText.value + "</p>");
+				  reqObj.open("GET", url, false);
+				  reqObj.send(null); 
+				  theArea.innerHTML = unescape(reqObj.responseText);
+				  theArea.scrollTop = theArea.scrollHeight;
+				  theText.value = "";
+				  return false;
+				}
+             //---------------------------------------------------------------              window.onload=function()
+              {
+                 document.forms[0][0].focus();
+              } 
+        </script>
+    </head>
+    
+    <body>
+         <h2>Open Chat Site</h2>
+         <div id="targetDiv" style="overflow:scroll;width:800px;height:400px;border:1px solid blue;">
+         </div>
+         <br> <br>
+         <form name="forinput" onsubmit="return submitHandler('usrText', 'targetDiv')">
+             <input type="text" id="usrText" style="width:800px"> 
+         </form>
+     </body>
+    </html>
